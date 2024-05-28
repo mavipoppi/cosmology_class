@@ -51,7 +51,7 @@ class BackgroundCosmology:
     self.Neff        = Neff
  
     # Set the constants
-    self.rhoc0       = (3*self.H0)/(8*np.pi*const.G) # Critical density today
+    self.rhoc0       = (3*self.H0**2)/(8*np.pi*const.G) # Critical density today
     # self.OmegaR      = 2*(np.pi**2/30) * ((const.k_b * TCMB_in_K)**4/(const.hbar**3 * const.c**5)) * ((8*np.pi*const.G)/3*(self.H0/const.H0_over_h)**2) # Radiation
     # self.OmegaNu     = self.Neff * (7/8) * (4/11)**(4/3) * self.OmegaR # Neutrino radiation
     self.OmegaR = 5.44377e-5
@@ -105,7 +105,7 @@ class BackgroundCosmology:
   # defining new methods
   
   def comoving_distance(self, x):
-    return self.eta_zero - self.eta_of_x(x)
+    return (self.eta_zero - self.eta_of_x(x))*self.H0*1e-5
   
   def angular_distance(self, x):
     return np.exp(x)*self.comoving_distance(x)
@@ -182,7 +182,7 @@ class BackgroundCosmology:
     """    
     npts = 2000
     xarr = np.linspace(np.log(1e-8), np.log(10), num = npts)
-    z_array = np.linspace(0.01, 1000, npts)
+    z_array = np.linspace(1e-2, 1e3, npts)
     x_array = [-np.log(1+z) for z in z_array]
 
    # Plotting H(x)
@@ -235,70 +235,70 @@ class BackgroundCosmology:
     # plt.yticks(np.arange(0.75, 3, 0.25))
     # plt.xlim(-14,0)
     # plt.ylim(0.75, 3)
-    # plt.savefig('eta_H.png')
+    # # plt.savefig('eta_H.png')
     
-    fig, axs = plt.subplots(2,3, figsize=(18,12), dpi=500)
+    # fig, axs = plt.subplots(2,3, figsize=(18,12), dpi=500)
 
-    axs[0][0].set_title('Evolution of Hubble factor')
-    axs[0][1].set_title(r'Evolution of scaled Hubble factor $\mathcal{H} = aH$')
-    axs[0][2].set_title('Evolution of density parameters')
-    axs[1][0].set_title('Evolution of conformal time')
-    axs[1][1].set_title(r'Evolution of Hubble factors (derivatives of $\mathcal{H} = aH$)')
-    axs[1][2].set_title('Evolution of cosmological distance measures')
+    # axs[0][0].set_title('Evolution of Hubble factor')
+    # axs[0][1].set_title(r'Evolution of scaled Hubble factor $\mathcal{H} = aH$')
+    # axs[0][2].set_title('Evolution of density parameters')
+    # axs[1][0].set_title('Evolution of conformal time')
+    # axs[1][1].set_title(r'Evolution of Hubble factors (derivatives of $\mathcal{H} = aH$)')
+    # axs[1][2].set_title('Evolution of cosmological distance measures')
 
-    axs[0][0].plot(xarr, H_x, color='blue') # H(x)
-    axs[0][1].plot(xarr, Hp_x, color='blue') # Hp(x)
-    axs[0][2].plot(xarr, omega_totalrad, color='orange', label=r'$\Omega_{TotalRadiation}$')
-    axs[0][2].plot(xarr, omega_darkenergy, color='blue', label=r'$\Omega_{DarkEnergy}$')
-    axs[0][2].plot(xarr, omega_k, color='red', label=r'$\Omega_{Curvature}$')
-    axs[0][2].plot(xarr, omega_totalmatter, color='green', label=r'$\Omega_{TotalMatter}$')
-    axs[1][0].plot(xarr, eta, color='blue')
-    axs[1][1].plot(xarr, dHp_dx, color='blue', label=r'$\frac{d\mathcal{H}}{dx} \cdot \frac{1}{\mathcal{H}}$')
-    axs[1][1].plot(xarr, dHp2_dx2, color='orange', label=r'$\frac{d\mathcal{H}^2}{dx^2} \cdot \frac{1}{\mathcal{H}}$')
-    axs[1][2].plot(z_array, hubble_distance, color='black', label=r'Naive Hubble distance $(d = H_0 z)$', linestyle='-')
-    axs[1][2].plot(z_array, luminosity, color='blue', label='Luminosity distance')
-    axs[1][2].plot(z_array, comoving_distance, color='orange', label='Comoving distance')
-    axs[1][2].plot(z_array, angular_distance, color='red', label='Angular diameter distance')
+    # axs[0][0].plot(xarr, H_x, color='blue') # H(x)
+    # axs[0][1].plot(xarr, Hp_x, color='blue') # Hp(x)
+    # axs[0][2].plot(xarr, omega_totalrad, color='orange', label=r'$\Omega_{TotalRadiation}$')
+    # axs[0][2].plot(xarr, omega_darkenergy, color='blue', label=r'$\Omega_{DarkEnergy}$')
+    # axs[0][2].plot(xarr, omega_k, color='red', label=r'$\Omega_{Curvature}$')
+    # axs[0][2].plot(xarr, omega_totalmatter, color='green', label=r'$\Omega_{TotalMatter}$')
+    # axs[1][0].plot(xarr, eta, color='blue')
+    # axs[1][1].plot(xarr, dHp_dx, color='blue', label=r'$\frac{d\mathcal{H}}{dx} \cdot \frac{1}{\mathcal{H}}$')
+    # axs[1][1].plot(xarr, dHp2_dx2, color='orange', label=r'$\frac{d\mathcal{H}^2}{dx^2} \cdot \frac{1}{\mathcal{H}}$')
+    # axs[1][2].plot(z_array, hubble_distance, color='black', label=r'Naive Hubble distance $(d = H_0 z)$', linestyle='-')
+    # axs[1][2].plot(z_array, luminosity, color='blue', label='Luminosity distance')
+    # axs[1][2].plot(z_array, comoving_distance, color='orange', label='Comoving distance')
+    # axs[1][2].plot(z_array, angular_distance, color='red', label='Angular diameter distance')
 
-    axs[0][0].set_ylabel(r'$H(x)$')
-    axs[0][0].set_xlabel(r'$x = log(a)$')
-    axs[0][1].set_ylabel(r'$\mathcal{H}(x)$')
-    axs[0][1].set_xlabel(r'$x = log(a)$')
-    axs[0][2].set_ylabel(r'$\Omega$')
-    axs[0][2].set_xlabel(r'$x=log(a)$')
-    axs[1][0].set_ylabel(r'$\eta(x)$')
-    axs[1][0].set_xlabel(r'$x = log(a)$')
-    axs[1][1].set_ylabel(r'$d\mathcal{h}/dx 1/\mathcal{H}$, $d\mathcal{H}^2/dx^2 1/\mathcal{H}$')
-    axs[1][1].set_xlabel(r'$x = log(a)$')
-    axs[1][2].set_ylabel('Distance (Mpc)')
-    axs[1][2].set_xlabel('Redshift z')
+    # axs[0][0].set_ylabel(r'$H(x)$')
+    # axs[0][0].set_xlabel(r'$x = log(a)$')
+    # axs[0][1].set_ylabel(r'$\mathcal{H}(x)$')
+    # axs[0][1].set_xlabel(r'$x = log(a)$')
+    # axs[0][2].set_ylabel(r'$\Omega$')
+    # axs[0][2].set_xlabel(r'$x=log(a)$')
+    # axs[1][0].set_ylabel(r'$\eta(x)$')
+    # axs[1][0].set_xlabel(r'$x = log(a)$')
+    # axs[1][1].set_ylabel(r'$d\mathcal{h}/dx 1/\mathcal{H}$, $d\mathcal{H}^2/dx^2 1/\mathcal{H}$')
+    # axs[1][1].set_xlabel(r'$x = log(a)$')
+    # axs[1][2].set_ylabel('Distance (Mpc)')
+    # axs[1][2].set_xlabel('Redshift z')
 
-    axs[0][0].axvline(x=0, color= 'black', ls=':')
-    axs[0][2].axvline(x=0, color='black', ls=':')
-    axs[0][2].axhline(y=0, color='black', ls=':')
-    axs[1][0].axvline(x=0, color= 'black', ls=':')
-    axs[1][1].axvline(x=0, color= 'black', ls=':')
-    axs[1][1].axhline(y=0, color= 'black', ls=':')
+    # axs[0][0].axvline(x=0, color= 'black', ls=':')
+    # axs[0][2].axvline(x=0, color='black', ls=':')
+    # axs[0][2].axhline(y=0, color='black', ls=':')
+    # axs[1][0].axvline(x=0, color= 'black', ls=':')
+    # axs[1][1].axvline(x=0, color= 'black', ls=':')
+    # axs[1][1].axhline(y=0, color= 'black', ls=':')
 
-    axs[0][0].set_xlim(-18, 2)
-    axs[0][1].set_xlim(-12, 0)
-    axs[0][1].set_ylim(1e-1, 1e4)
-    axs[0][2].set_xlim(-18,2)
-    axs[1][0].set_xlim(-18,2)
-    axs[1][1].set_xlim(-18,2)
-    axs[1][2].set_xlim(1e-2, 1e3)
+    # axs[0][0].set_xlim(-18, 2)
+    # axs[0][1].set_xlim(-12, 0)
+    # axs[0][1].set_ylim(1e-1, 1e4)
+    # axs[0][2].set_xlim(-18,2)
+    # axs[1][0].set_xlim(-18,2)
+    # axs[1][1].set_xlim(-18,2)
+    # axs[1][2].set_xlim(1e-2, 1e3)
 
-    axs[0][0].set_yscale('log')
-    axs[0][1].set_yscale('log')
-    axs[1][0].set_yscale('log')
-    axs[1][2].set_yscale('log')
-    axs[1][2].set_xscale('log')
+    # axs[0][0].set_yscale('log')
+    # axs[0][1].set_yscale('log')
+    # axs[1][0].set_yscale('log')
+    # axs[1][2].set_yscale('log')
+    # axs[1][2].set_xscale('log')
 
-    axs[0][2].legend()
-    axs[1][1].legend()
-    axs[1][2].legend()
-    plt.tight_layout()
-    plt.savefig('H0_cosmology.png')  
+    # axs[0][2].legend()
+    # axs[1][1].legend()
+    # axs[1][2].legend()
+    # plt.tight_layout()
+    # plt.savefig('H0_cosmology.png')  
 
 
   # =========================================================================

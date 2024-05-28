@@ -42,12 +42,11 @@ cosmo = BackgroundCosmology.BackgroundCosmology(
 # Solve and plot
 cosmo.info()
 cosmo.solve()
-print(f"Age of the universe: {cosmo.time_of_x(0)/3.15e7/1e9:.4} billion years.")
+# print(f"Age of the universe: {cosmo.time_of_x(0)/3.15e7/1e9:.4} billion years.")
 if show_plots: cosmo.plot() 
 
 
 # Remove when done with milestone
-exit()
 
 #============================================
 # Milestone 2: Solve the recombination history

@@ -93,7 +93,7 @@ class RecombinationHistory:
   def Xe_of_x(self,x):
     if not hasattr(self, 'log_Xe_of_x_spline'):
       raise NameError('The spline log_Xe_of_x_spline has not been created') 
-    return Xe
+    return np.exp(self.log_Xe_of_x_spline(x))
   def ne_of_x(self,x):
     if not hasattr(self, 'log_ne_of_x_spline'):
       raise NameError('The spline log_ne_of_x_spline has not been created') 
@@ -122,7 +122,7 @@ class RecombinationHistory:
     """
     self.solve_number_density_electrons()
     
-    self.solve_for_optical_depth_tau()
+    # self.solve_for_optical_depth_tau()
  
     # Compute z_star (peak of visibility function or tau = 1)
     # XXX TODO XXX
@@ -139,26 +139,26 @@ class RecombinationHistory:
     xarr   = np.linspace(self.x_start, self.x_end, num = npts)
     Xe     = [self.Xe_of_x(xarr[i]) for i in range(npts)]
     ne     = [self.ne_of_x(xarr[i]) for i in range(npts)]
-    tau    = [self.tau_of_x(xarr[i]) for i in range(npts)]
-    dtaudx = [-self.dtaudx_of_x(xarr[i]) for i in range(npts)]
-    ddtauddx = [self.ddtauddx_of_x(xarr[i]) for i in range(npts)]
-    g_tilde      = self.g_tilde_of_x(xarr)
-    dgdx_tilde   = self.dgdx_tilde_of_x(xarr)
-    ddgddx_tilde = self.ddgddx_tilde_of_x(xarr)
+    # tau    = [self.tau_of_x(xarr[i]) for i in range(npts)]
+    # dtaudx = [-self.dtaudx_of_x(xarr[i]) for i in range(npts)]
+    # ddtauddx = [self.ddtauddx_of_x(xarr[i]) for i in range(npts)]
+    # g_tilde      = self.g_tilde_of_x(xarr)
+    # dgdx_tilde   = self.dgdx_tilde_of_x(xarr)
+    # ddgddx_tilde = self.ddgddx_tilde_of_x(xarr)
     
     # Recombination g_tilde
-    plt.xlim(-7.5,-6.5)
-    plt.ylim(-4,6)
-    plt.title('Visibility function and derivatives close to recombination')
-    plt.plot(xarr, g_tilde, xarr, dgdx_tilde/15., xarr, ddgddx_tilde/300.)
-    plt.show()
+    # plt.xlim(-7.5,-6.5)
+    # plt.ylim(-4,6)
+    # plt.title('Visibility function and derivatives close to recombination')
+    # plt.plot(xarr, g_tilde, xarr, dgdx_tilde/15., xarr, ddgddx_tilde/300.)
+    # plt.show()
     
-    # Reionization g_tilde
-    plt.xlim(-2.7,-2.0)
-    plt.ylim(-0.15,0.15)
-    plt.title('Visibility function and derivatives close to reionization')
-    plt.plot(xarr, g_tilde, xarr, dgdx_tilde/15., xarr, ddgddx_tilde/300.)
-    plt.show()
+    # # Reionization g_tilde
+    # plt.xlim(-2.7,-2.0)
+    # plt.ylim(-0.15,0.15)
+    # plt.title('Visibility function and derivatives close to reionization')
+    # plt.plot(xarr, g_tilde, xarr, dgdx_tilde/15., xarr, ddgddx_tilde/300.)
+    # plt.show()
     
     # Xe(x) of x
     plt.title('Free electron fraction')
@@ -171,12 +171,12 @@ class RecombinationHistory:
     plt.plot(xarr, ne)
     plt.show()
     
-    # tau
-    plt.yscale('log')
-    plt.title('Tau and derivatives')
-    plt.ylim(1e-8,1e8)
-    plt.plot(xarr, tau, xarr, dtaudx, xarr, ddtauddx)
-    plt.show()
+    # # tau
+    # plt.yscale('log')
+    # plt.title('Tau and derivatives')
+    # plt.ylim(1e-8,1e8)
+    # plt.plot(xarr, tau, xarr, dtaudx, xarr, ddtauddx)
+    # plt.show()
     
   #=========================================================================
   #=========================================================================
@@ -203,6 +203,14 @@ class RecombinationHistory:
       # Current scale factor
       x = x_array[i]
       a = np.exp(x)
+      Xe_saha_limit = 0.99
+
+      proton_density_nb = self.cosmo.OmegaB * self.cosmo.rhoc0 / (const.m_H * a**3)
+      frac_Xe = (1/proton_density_nb) * (((const.m_e * (self.cosmo.TCMB / a)) / (2 * np.pi)) ** (1.5)) * np.exp(-13.6/((self.cosmo.TCMB / a) * const.k_b))
+      delta = frac_Xe**2 - 4*frac_Xe
+
+      Xe_current = (- frac_Xe + np.sqrt(delta))/2
+      ne_current = Xe_current * proton_density_nb
       
       #==============================================================
       # Get f_e from solving the Saha equation
@@ -221,7 +229,32 @@ class RecombinationHistory:
         #==============================================================
         # We need to solve the Peebles equation for the rest of the time
         #==============================================================
+
+        helium_frac = 0.245
+        phi = 0.448*np.log(13.6 / (self.cosmo.TCMB / a))
+        finestructure_cte = 1 / (137.0359992)
+        alpha_2 = (64*np.pi / np.sqrt(27*np.pi)) * (finestructure_cte**2 / const.m_e**2) * (np.sqrt(13.6/(self.cosmo.TCMB / a))) * phi
+        beta = alpha_2 * ((const.m_e*(self.cosmo.TCMB / a))/(2*np.pi))**(1.5)*np.exp(-13.6/(self.cosmo.TCMB / a))
+        beta_2 = beta * np.exp((3*13.6)/(4*(self.cosmo.TCMB / a)))
+        n_H = (1 - helium_frac)* (3 * self.cosmo.H0**2 * self.cosmo.OmegaB) / (8 * np.pi * const.G * const.m_H*a**3)
+        n1s = (1 - Xe_current)*proton_density_nb
+        gamma_alpha = self.cosmo.H*(3*13.6)**3/((8*np.pi)**2 * n1s)
+        gamma_2s1s = 8.8227
+        C_r = (gamma_2s1s + gamma_alpha) / (gamma_2s1s + gamma_alpha + beta_2)
     
+
+        peebles_eq = (C_r / self.cosmo.H) * (beta*(1 - Xe_current) - proton_density_nb * alpha_2 * Xe_current**2)
+
+        peebles_int = integrate.quad(lambda x_p: peebles_eq, x_start, x)
+
+        n_e = peebles_int * proton_density_nb
+
+        for i in peebles_int:
+          Xe_arr.append(i)
+
+        for i in n_e:
+          ne_arr.append(i)
+
         # Make x-array for Peebles system from current time till the end
         # XXX TODO XXX
 
@@ -239,8 +272,8 @@ class RecombinationHistory:
     
     # Make splines of log(Xe) and log(ne) as function of x = log(a)
     # XXX TODO XXX
-    # self.log_Xe_of_x_spline = CubicSpline(x_array, np.log(Xe_arr))
-    # self.log_ne_of_x_spline = CubicSpline(x_array, np.log(ne_arr))
+    self.log_Xe_of_x_spline = CubicSpline(x_array, np.log(Xe_arr))
+    self.log_ne_of_x_spline = CubicSpline(x_array, np.log(ne_arr))
 
     return
  
