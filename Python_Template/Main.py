@@ -47,25 +47,26 @@ if show_plots: cosmo.plot()
 
 
 # Remove when done with milestone
+exit()
 
 #============================================
 # Milestone 2: Solve the recombination history
 #============================================
-rec = RecombinationHistory.RecombinationHistory(
-    BackgroundCosmology  = cosmo,
-    Yp                   = 0.24,     # Primordial helium fraction
-    reionization         = True,     # Include reionization
-    z_reion              = 11.0,     # Reionization redshift
-    delta_z_reion        = 0.5,      # Reionization width
-    helium_reionization  = True,     # Helium double reionization
-    z_helium_reion       = 3.5,      # Helium double reionization redshift
-    delta_z_helium_reion = 0.5)      # Helium double reionization width
+# rec = RecombinationHistory.RecombinationHistory(
+#     BackgroundCosmology  = cosmo,
+#     Yp                   = 0.24,     # Primordial helium fraction
+#     reionization         = True,     # Include reionization
+#     z_reion              = 11.0,     # Reionization redshift
+#     delta_z_reion        = 0.5,      # Reionization width
+#     helium_reionization  = True,     # Helium double reionization
+#     z_helium_reion       = 3.5,      # Helium double reionization redshift
+#     delta_z_helium_reion = 0.5)      # Helium double reionization width
 
 
-# Solve and plot
-rec.info()
-rec.solve()
-if show_plots: rec.plot()
+# # Solve and plot
+# rec.info()
+# rec.solve()
+# if show_plots: rec.plot()
 
 # Remove when done with milestone
 exit()

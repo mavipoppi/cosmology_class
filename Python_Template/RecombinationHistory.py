@@ -162,14 +162,14 @@ class RecombinationHistory:
     
     # Xe(x) of x
     plt.title('Free electron fraction')
-    plt.plot(xarr, Xe)
+    plt.plot(xarr, Xe_of_x)
     plt.show()
     
     # ne of x
-    plt.yscale('log')
-    plt.title('Electron numberdensity')
-    plt.plot(xarr, ne)
-    plt.show()
+    # plt.yscale('log')
+    # plt.title('Electron numberdensity')
+    # plt.plot(xarr, ne)
+    # plt.show()
     
     # # tau
     # plt.yscale('log')
@@ -206,8 +206,9 @@ class RecombinationHistory:
       Xe_saha_limit = 0.99
 
       proton_density_nb = self.cosmo.OmegaB * self.cosmo.rhoc0 / (const.m_H * a**3)
-      frac_Xe = (1/proton_density_nb) * (((const.m_e * (self.cosmo.TCMB / a)) / (2 * np.pi)) ** (1.5)) * np.exp(-13.6/((self.cosmo.TCMB / a) * const.k_b))
-      delta = frac_Xe**2 - 4*frac_Xe
+      frac_Xe = ((const.m**3 * 1e42) / (const.kg**(3/2) * const.K ** (3/2)))*(1/proton_density_nb) * (((const.m_e * (self.cosmo.TCMB / a)) / (2 * np.pi)) ** (1.5)) * np.exp(-13.6/((self.cosmo.TCMB / a) * const.k_b))
+
+      delta = (frac_Xe**2 - 4*frac_Xe)
 
       Xe_current = (- frac_Xe + np.sqrt(delta))/2
       ne_current = Xe_current * proton_density_nb

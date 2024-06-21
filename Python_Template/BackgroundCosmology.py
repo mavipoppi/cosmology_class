@@ -102,22 +102,7 @@ class BackgroundCosmology:
   def omega_darkenergy(self, x):
     return self.OmegaLambda / (self.H_of_x(x)**2 / self.H0**2)
   
-  # defining new methods
-  
-  def comoving_distance(self, x):
-    return (self.eta_zero - self.eta_of_x(x))*self.H0*1e-5
-  
-  def angular_distance(self, x):
-    return np.exp(x)*self.comoving_distance(x)
-  
-  def luminosity_distance(self, x):
-    return self.angular_distance(x) / np.exp(2*x)
-  
-  def redshift(self, x):
-    return (1/np.exp(x)) - 1
-  
-  def hubble_distance(self, x):
-    return (self.H0/const.H0_over_h) * self.redshift(x) 
+
   
   #=========================================================================
   #=========================================================================
@@ -157,7 +142,7 @@ class BackgroundCosmology:
     # Compute and spline conformal time eta = Int_0^t dt/a = Int da/(a^2 H(a)) =  Int dx/[ exp(x) * H(exp(x)) ] where x = log a
     for i in range(len(x_array)):
       x = x_array[i]
-      eta = integrate.quad(lambda x_p: const.c / (self.Hp_of_x(x_p)), self.x_start, x)
+      eta = integrate.quad(lambda x_p: 1 / (self.Hp_of_x(x_p)), self.x_start, x)
       np.put(eta_array, i, eta)
 
     # Spline up result
@@ -187,15 +172,15 @@ class BackgroundCosmology:
 
    # Plotting H(x)
 
-    H_x = [self.H_of_x(xarr[i]) / self.H0 for i in range(npts)]
+    H_x = [self.H_of_x(xarr[i]) * const.Mpc / const.km for i in range(npts)]
 
     # Plotting Hp(x)
 
-    Hp_x = [self.Hp_of_x(xarr[i]) / const.H0_over_h for i in range(npts)]
+    Hp_x = [self.Hp_of_x(xarr[i]) * const.Mpc / const.km for i in range(npts)]
 
     # Plotting eta(x)
 
-    eta = [self.eta_of_x(xarr[i]) / const.Mpc for i in range(npts)] 
+    eta = [self.eta_of_x(xarr[i]) for i in range(npts)] 
 
     # Plotting dHp/dx / Hp(x)
 
@@ -212,93 +197,69 @@ class BackgroundCosmology:
     omega_darkenergy = [self.omega_darkenergy(xarr[i]) for i in range(npts)]
     omega_totalmatter = [self.omega_totalmatter(xarr[i]) for i in range(npts)]
 
-    # Plotting evolution of cosmological distance measures
-
-    hubble_distance = [self.hubble_distance(x_array[i]) for i in range(npts)]
-    luminosity = [self.luminosity_distance(x_array[i]) for i in range(npts)]
-    comoving_distance = [self.comoving_distance(x_array[i]) for i in range(npts)]
-    angular_distance = [self.angular_distance(x_array[i]) for i in range(npts)]
-
     # Plotting cosmic time
 
     cosmic_time = [self.time_of_x(xarr[i]) for i in range(npts)]
-
-    # plt.plot(xarr, cosmic_time)
-    # plt.savefig('cosmic.png')
-    # Making plots
 
     # Plotting eta*H_p/c
 
     eta_h_p = [self.eta_of_x(xarr[i])*self.Hp_of_x(xarr[i])/ const.c for i in range(npts)]
 
-    # plt.plot(xarr, eta_h_p)
-    # plt.yticks(np.arange(0.75, 3, 0.25))
-    # plt.xlim(-14,0)
-    # plt.ylim(0.75, 3)
-    # # plt.savefig('eta_H.png')
-    
-    # fig, axs = plt.subplots(2,3, figsize=(18,12), dpi=500)
+    # Plotting evolution of Hubble Factor
 
-    # axs[0][0].set_title('Evolution of Hubble factor')
-    # axs[0][1].set_title(r'Evolution of scaled Hubble factor $\mathcal{H} = aH$')
-    # axs[0][2].set_title('Evolution of density parameters')
-    # axs[1][0].set_title('Evolution of conformal time')
-    # axs[1][1].set_title(r'Evolution of Hubble factors (derivatives of $\mathcal{H} = aH$)')
-    # axs[1][2].set_title('Evolution of cosmological distance measures')
+    # plt.plot(xarr, H_x, color='#A756B4')
+    # plt.ylabel(r'$H(x) \, (km/s/Mpc)$')
+    # plt.xlabel(r'$x = log(a)$')
+    # plt.xlim(-18, 2)
+    # plt.yscale('log')
+    # plt.axvline(x=0, color= 'black', ls=':')
+    # plt.axhline(y=67, color= 'black', ls=':')
 
-    # axs[0][0].plot(xarr, H_x, color='blue') # H(x)
-    # axs[0][1].plot(xarr, Hp_x, color='blue') # Hp(x)
-    # axs[0][2].plot(xarr, omega_totalrad, color='orange', label=r'$\Omega_{TotalRadiation}$')
-    # axs[0][2].plot(xarr, omega_darkenergy, color='blue', label=r'$\Omega_{DarkEnergy}$')
-    # axs[0][2].plot(xarr, omega_k, color='red', label=r'$\Omega_{Curvature}$')
-    # axs[0][2].plot(xarr, omega_totalmatter, color='green', label=r'$\Omega_{TotalMatter}$')
-    # axs[1][0].plot(xarr, eta, color='blue')
-    # axs[1][1].plot(xarr, dHp_dx, color='blue', label=r'$\frac{d\mathcal{H}}{dx} \cdot \frac{1}{\mathcal{H}}$')
-    # axs[1][1].plot(xarr, dHp2_dx2, color='orange', label=r'$\frac{d\mathcal{H}^2}{dx^2} \cdot \frac{1}{\mathcal{H}}$')
-    # axs[1][2].plot(z_array, hubble_distance, color='black', label=r'Naive Hubble distance $(d = H_0 z)$', linestyle='-')
-    # axs[1][2].plot(z_array, luminosity, color='blue', label='Luminosity distance')
-    # axs[1][2].plot(z_array, comoving_distance, color='orange', label='Comoving distance')
-    # axs[1][2].plot(z_array, angular_distance, color='red', label='Angular diameter distance')
+    # Plotting evolution of conformal Hubble factor
 
-    # axs[0][0].set_ylabel(r'$H(x)$')
-    # axs[0][0].set_xlabel(r'$x = log(a)$')
-    # axs[0][1].set_ylabel(r'$\mathcal{H}(x)$')
-    # axs[0][1].set_xlabel(r'$x = log(a)$')
-    # axs[0][2].set_ylabel(r'$\Omega$')
-    # axs[0][2].set_xlabel(r'$x=log(a)$')
-    # axs[1][0].set_ylabel(r'$\eta(x)$')
-    # axs[1][0].set_xlabel(r'$x = log(a)$')
-    # axs[1][1].set_ylabel(r'$d\mathcal{h}/dx 1/\mathcal{H}$, $d\mathcal{H}^2/dx^2 1/\mathcal{H}$')
-    # axs[1][1].set_xlabel(r'$x = log(a)$')
-    # axs[1][2].set_ylabel('Distance (Mpc)')
-    # axs[1][2].set_xlabel('Redshift z')
+    # plt.plot(xarr, Hp_x, color='#A756B4')
+    # plt.ylabel(r'$\mathcal{H}(x) = e^x H(x) \, (km/s/Mpc)$')
+    # plt.xlabel(r'$x = log(a)$')
+    # plt.xlim(-17.5, 1)
+    # # plt.ylim(1e-1, 1e4)
+    # plt.yscale('log')
+    # plt.axvline(x=0, color= 'black', ls=':')
+    # plt.axhline(y=67, color= 'black', ls=':')
 
-    # axs[0][0].axvline(x=0, color= 'black', ls=':')
-    # axs[0][2].axvline(x=0, color='black', ls=':')
-    # axs[0][2].axhline(y=0, color='black', ls=':')
-    # axs[1][0].axvline(x=0, color= 'black', ls=':')
-    # axs[1][1].axvline(x=0, color= 'black', ls=':')
-    # axs[1][1].axhline(y=0, color= 'black', ls=':')
+    # Plotting evolution of density parameters
 
-    # axs[0][0].set_xlim(-18, 2)
-    # axs[0][1].set_xlim(-12, 0)
-    # axs[0][1].set_ylim(1e-1, 1e4)
-    # axs[0][2].set_xlim(-18,2)
-    # axs[1][0].set_xlim(-18,2)
-    # axs[1][1].set_xlim(-18,2)
-    # axs[1][2].set_xlim(1e-2, 1e3)
+    # plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
+    # plt.plot(xarr, omega_darkenergy, color='#69B3FF', label=r'$\Omega_{EnergiaEscura}$')
+    # plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
+    # plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
+    # plt.ylabel(r'$\Omega$')
+    # plt.xlabel(r'$x=log(a)$')
+    # plt.axvline(x=0, color='black', ls=':')
+    # plt.axhline(y=0, color='black', ls=':')
+    # plt.xlim(-18,2)
+    # plt.legend()
 
-    # axs[0][0].set_yscale('log')
-    # axs[0][1].set_yscale('log')
-    # axs[1][0].set_yscale('log')
-    # axs[1][2].set_yscale('log')
-    # axs[1][2].set_xscale('log')
+    # Plotting evolution of conformal time
 
-    # axs[0][2].legend()
-    # axs[1][1].legend()
-    # axs[1][2].legend()
-    # plt.tight_layout()
-    # plt.savefig('H0_cosmology.png')  
+    # plt.plot(xarr, eta, color='#A756B4')
+    # plt.ylabel(r'$\eta(x)\,(s)$')
+    # plt.xlabel(r'$x = log(a)$')
+    # plt.axvline(x=0, color= 'black', ls=':')
+    # plt.axhline(y=1.48e18, color= 'black', ls=':')
+    # plt.xlim(-18,2)
+    # plt.yscale('log')
+
+    # Plotting evolution of Hubble factors 
+
+    # plt.plot(xarr, dHp_dx, color='#A756B4', label=r'$\frac{d\mathcal{H}}{dx} \cdot \frac{1}{\mathcal{H}}$')
+    # plt.plot(xarr, dHp2_dx2, color='#00B692', label=r'$\frac{d\mathcal{H}^2}{dx^2} \cdot \frac{1}{\mathcal{H}}$')
+    # plt.ylabel(r'$d\mathcal{h}/dx 1/\mathcal{H}$, $d\mathcal{H}^2/dx^2 1/\mathcal{H}$')
+    # plt.xlabel(r'$x = log(a)$')
+    # plt.axvline(x=0, color= 'black', ls=':')
+    # plt.axhline(y=0, color= 'black', ls=':')
+    # plt.xlim(-18,2)
+
+
 
 
   # =========================================================================
