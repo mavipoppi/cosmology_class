@@ -228,16 +228,16 @@ class BackgroundCosmology:
 
     # Plotting evolution of density parameters
 
-    # plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
-    # plt.plot(xarr, omega_darkenergy, color='#69B3FF', label=r'$\Omega_{EnergiaEscura}$')
-    # plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
-    # plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
-    # plt.ylabel(r'$\Omega$')
-    # plt.xlabel(r'$x=log(a)$')
-    # plt.axvline(x=0, color='black', ls=':')
-    # plt.axhline(y=0, color='black', ls=':')
-    # plt.xlim(-18,2)
-    # plt.legend()
+    plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
+    plt.plot(xarr, omega_darkenergy, color='#A756B4', label=r'$\Omega_{EnergiaEscura}$')
+    plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
+    plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
+    plt.ylabel(r'$\Omega$')
+    plt.xlabel(r'$x=log(a)$')
+    plt.axvline(x=0, color='black', ls=':')
+    plt.axhline(y=0, color='black', ls=':')
+    plt.xlim(-18,2)
+    plt.legend()
 
     # Plotting evolution of conformal time
 
