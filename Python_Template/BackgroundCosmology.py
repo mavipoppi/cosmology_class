@@ -198,14 +198,26 @@ class BackgroundCosmology:
     omega_totalmatter = [self.omega_totalmatter(xarr[i]) for i in range(npts)]
 
     # Plotting cosmic time
+    plt.figure(figsize=(10,8), dpi=300)
 
-    cosmic_time = [self.time_of_x(xarr[i]) for i in range(npts)]
+    cosmic_time = [self.time_of_x(xarr[i])/3.15e7/1e9 for i in range(npts)]
 
+    plt.plot(xarr, cosmic_time, color='#A756B4')
+    plt.axhline(y=13.8, color= 'black', ls=':')
+    plt.axvline(x=0, color= 'black', ls=':')
+    plt.yscale('log')
+    plt.ylabel('Tempo Cósmico (bilhões de anos)')
+    plt.xlabel(r'$x = log(a)$')
+    plt.xlim(-15, 2)
+    plt.ylim(1E-12, 1E2)
     # Plotting eta*H_p/c
 
     eta_h_p = [self.eta_of_x(xarr[i])*self.Hp_of_x(xarr[i])/ const.c for i in range(npts)]
 
+
     # Plotting evolution of Hubble Factor
+
+    
 
     # plt.plot(xarr, H_x, color='#A756B4')
     # plt.ylabel(r'$H(x) \, (km/s/Mpc)$')
@@ -228,16 +240,16 @@ class BackgroundCosmology:
 
     # Plotting evolution of density parameters
 
-    plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
-    plt.plot(xarr, omega_darkenergy, color='#A756B4', label=r'$\Omega_{EnergiaEscura}$')
-    plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
-    plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
-    plt.ylabel(r'$\Omega$')
-    plt.xlabel(r'$x=log(a)$')
-    plt.axvline(x=0, color='black', ls=':')
-    plt.axhline(y=0, color='black', ls=':')
-    plt.xlim(-18,2)
-    plt.legend()
+    # plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
+    # plt.plot(xarr, omega_darkenergy, color='#A756B4', label=r'$\Omega_{EnergiaEscura}$')
+    # plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
+    # plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
+    # plt.ylabel(r'$\Omega$')
+    # plt.xlabel(r'$x=log(a)$')
+    # plt.axvline(x=0, color='black', ls=':')
+    # plt.axhline(y=0, color='black', ls=':')
+    # plt.xlim(-18,2)
+    # plt.legend()
 
     # Plotting evolution of conformal time
 

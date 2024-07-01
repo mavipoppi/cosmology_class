@@ -4,7 +4,7 @@ import scipy.integrate as integrate
 from   scipy.interpolate import CubicSpline
 from   scipy.integrate import solve_ivp
 import warnings
-
+from mpmath import *
 from   Global import const
 import BackgroundCosmology
 
@@ -93,7 +93,7 @@ class RecombinationHistory:
   def Xe_of_x(self,x):
     if not hasattr(self, 'log_Xe_of_x_spline'):
       raise NameError('The spline log_Xe_of_x_spline has not been created') 
-    return Xe
+    return self.log_Xe_of_x_spline(x)
   def ne_of_x(self,x):
     if not hasattr(self, 'log_ne_of_x_spline'):
       raise NameError('The spline log_ne_of_x_spline has not been created') 
@@ -138,13 +138,13 @@ class RecombinationHistory:
     npts   = 10000
     xarr   = np.linspace(self.x_start, self.x_end, num = npts)
     Xe     = [self.Xe_of_x(xarr[i]) for i in range(npts)]
-    ne     = [self.ne_of_x(xarr[i]) for i in range(npts)]
-    tau    = [self.tau_of_x(xarr[i]) for i in range(npts)]
-    dtaudx = [-self.dtaudx_of_x(xarr[i]) for i in range(npts)]
-    ddtauddx = [self.ddtauddx_of_x(xarr[i]) for i in range(npts)]
-    g_tilde      = self.g_tilde_of_x(xarr)
-    dgdx_tilde   = self.dgdx_tilde_of_x(xarr)
-    ddgddx_tilde = self.ddgddx_tilde_of_x(xarr)
+    # ne     = [self.ne_of_x(xarr[i]) for i in range(npts)]
+    # tau    = [self.tau_of_x(xarr[i]) for i in range(npts)]
+    # dtaudx = [-self.dtaudx_of_x(xarr[i]) for i in range(npts)]
+    # ddtauddx = [self.ddtauddx_of_x(xarr[i]) for i in range(npts)]
+    # g_tilde      = self.g_tilde_of_x(xarr)
+    # dgdx_tilde   = self.dgdx_tilde_of_x(xarr)
+    # ddgddx_tilde = self.ddgddx_tilde_of_x(xarr)
     
     # Recombination g_tilde
     # plt.xlim(-7.5,-6.5)
@@ -163,13 +163,15 @@ class RecombinationHistory:
     # Xe(x) of x
     plt.title('Free electron fraction')
     plt.plot(xarr, Xe)
-    plt.show()
-    
-    # ne of x
+    plt.xlim(-12.5, 0)
     plt.yscale('log')
-    plt.title('Electron numberdensity')
-    plt.plot(xarr, ne)
     plt.show()
+
+    # # ne of x
+    # plt.yscale('log')
+    # plt.title('Electron numberdensity')
+    # plt.plot(xarr, ne)
+    # plt.show()
     
     # tau
     # plt.yscale('log')
@@ -232,8 +234,9 @@ class RecombinationHistory:
       Xe_current, ne_current = self.electron_fraction_from_saha_equation(x)
       
       # Two regimes: Saha and Peebles regime
-      if(Xe_current > Xe_saha_limit):
-      
+      # if(Xe_current > Xe_saha_limit):
+      if False:
+
         # Store the results from the Saha equation
         Xe_arr[i] = Xe_current
         ne_arr[i] = ne_current 
@@ -247,7 +250,7 @@ class RecombinationHistory:
         # Make x-array for Peebles system from current time till the end
         x_interval = (x_array[i], x_end)
         x_arraynew = x_array[i:]
-
+        # print(len(x_arraynew))
         # Set initial conditions
         y = [Xe_current]
        
@@ -255,18 +258,23 @@ class RecombinationHistory:
         peebles = solve_ivp(self.rhs_peebles_ode, x_interval, y, t_eval= x_arraynew)
 
         # Fill up array with the result
-        for j in range(i, npts):
-          print(j, i, npts, j - i)
-          Xe_arr[j] = peebles.y[j-i]
-          ne_arr[j] = peebles.y[j-i]*n_b
+        for j in range(i, npts - 1):
+          # print(i, j, npts)
+          # print(peebles.y[0][j-i])
+          Xe_arr[j] = peebles.y[0][j-i]
+          ne_arr[j] = peebles.y[0][j-i]*n_b
 
+          
         # We are done so exit for loop
         break
-    
+      
+    # Xe_arr = [Xe_arr[i] if Xe_arr[i] != 0  else 1E-6 for i in range(len(Xe_arr)) ]
+
+    # print(Xe_arr)
     # Make splines of log(Xe) and log(ne) as function of x = log(a)
     # XXX TODO XXX
-    self.log_Xe_of_x_spline = CubicSpline(x_array, np.log(Xe_arr))
-    self.log_ne_of_x_spline = CubicSpline(x_array, np.log(ne_arr))
+    self.log_Xe_of_x_spline = CubicSpline(x_array, Xe_arr)
+    # self.log_ne_of_x_spline = CubicSpline(x_array, np.log(ne_arr))
 
     return
  
@@ -358,58 +366,75 @@ class RecombinationHistory:
     """
 
     # Solver variables
-    X_e         = y[0]
-    a           = np.exp(x)
+    X_e         = mpf(y[0])
+    a           = mpf(np.exp(x))
 
     # Physical constants 
-    k_b         = const.k_b
-    G           = const.G
-    c           = const.c
-    m_e         = const.m_e
-    hbar        = const.hbar
-    m_H         = const.m_H
-    sigma_T     = const.sigma_T
-    lambda_2s1s = const.lambda_2s1s
-    epsilon_0   = const.epsilon_0
+    k_b         = mpf(const.k_b)
+    G           = mpf(const.G)
+    c           = mpf(const.c)
+    m_e         = mpf(const.m_e)
+    hbar        = mpf(const.hbar)
+    m_H         = mpf(const.m_H)
+    sigma_T     = mpf(const.sigma_T)
+    lambda_2s1s = mpf(const.lambda_2s1s)
+    epsilon_0   = mpf(const.epsilon_0)
+
     # Cosmological parameters 
-    Yp          = self.Yp
-    OmegaB      = self.cosmo.OmegaB
-    TCMB        = self.cosmo.TCMB
-    H0          = self.cosmo.H0
-    H           = self.cosmo.H_of_x(x)
+    Yp          = mpf(self.Yp)
+    OmegaB      = mpf(self.cosmo.OmegaB)
+    TCMB        = mpf(self.cosmo.TCMB)
+    H0          = mpf(self.cosmo.H0)
+    H           = mpf(self.cosmo.H_of_x(x))
 
     # Set right hand side of the Peebles equation
 
-    phi_Tb = 0.448*np.log(epsilon_0/(k_b*(TCMB/a))) # dimensionless
-    print(f'Phi_tb = {phi_Tb}')
+    phi_Tb = mpf(0.448)*ln(epsilon_0/(k_b*(TCMB/a))) # dimensionless
+    # print(f'Phi_tb = {phi_Tb}')
 
-    fine_struct = 1 / 137.0359992 
+    fine_struct = mpf(1) / mpf(137.0359992) 
 
-    sigma_T = (8*np.pi/3) * ((fine_struct*hbar*c) / (m_e * c**2))**2
-    print(f'Sigma_T = {sigma_T}')
+    Sigma_T = (mpf(8)*pi/mpf(3)) * ((fine_struct*hbar*c) / (m_e * c**2))**2
+    # print(f'Sigma_T = {sigma_T}')
 
-    alpha_Tb = (8/np.sqrt(3*np.pi))*c*sigma_T*np.sqrt(epsilon_0/(k_b*TCMB/a)) * phi_Tb # dimension: mˆ3/s
-    print(f'Alpha_tb = {alpha_Tb}')
+    alpha_Tb = (mpf(8)/sqrt(mpf(3)*pi))*c*sigma_T*sqrt(epsilon_0/(k_b*TCMB/a)) * phi_Tb # dimension: mˆ3/s
+    # print(f'Alpha_tb = {alpha_Tb}')
 
-    beta_Tb = alpha_Tb * ((m_e*k_b*TCMB/a)/(2*np.pi*hbar**2))**(3/2) * np.exp(-epsilon_0/(k_b*TCMB/a)) # dimension: 1/s
-    print(f'Beta_tb = {beta_Tb}')
+    beta_Tb = alpha_Tb * ((m_e*k_b*TCMB/a)/(mpf(2)*pi*hbar**2))**(3/2) * exp(-epsilon_0/(k_b*TCMB/a)) # dimension: 1/s
+    # print(f'Beta_tb = {beta_Tb}')
 
-    beta2_Tb = beta_Tb*np.exp((3*epsilon_0)/(4*k_b*TCMB/a)) # dimension: 1/s
-    print(f'Beta2_tb = {beta2_Tb}')
+    beta2_Tb = beta_Tb*exp((mpf(3)*epsilon_0)/(mpf(4)*k_b*TCMB/a)) # dimension: 1/s
+    # print(f'Beta2_tb = {beta2_Tb}')
 
-    n_H = (3*OmegaB*H0**2*(1-Yp))/(8*np.pi*G*a**3*m_H)
-    print(f'n_H = {n_H}')
+    n_H = (mpf(3)*OmegaB*H0**2*(1-Yp))/(mpf(8)*np.pi*G*a**mpf(3)*m_H)
+    # print(f'n_H = {n_H}')
 
-    n1s = (1 - X_e) * n_H
-    print(f'n1s = {n1s}')
+    n1s = (mpf(1) - X_e) * n_H
+    # print(f'n1s = {n1s}')
 
-    lambda_a = H * ((3*epsilon_0)*3) / ((8*np.pi)**2 * c**3 * hbar**3 * n1s) # dimension 1/s
-    print(f'Lambda_a = {lambda_a}')
+    lambda_a = H * ((mpf(3)*epsilon_0)**3) / ((mpf(8)*np.pi)**2 * c**3 * hbar**3 * n1s) # dimension 1/s
+    # print(f'Lambda_a = {lambda_a}')
 
     Cr_Tb = (lambda_2s1s + lambda_a)/(lambda_2s1s+lambda_a+beta2_Tb) # dimensionless
-    print(f'Cr_Tb = {Cr_Tb}')
+    # print(f'Cr_Tb = {Cr_Tb}')
 
-    dXedx = (Cr_Tb/(H))*(beta_Tb*(1-X_e) - n_H*alpha_Tb*X_e**2)
+    dXedx = (Cr_Tb/(H))*(beta_Tb*(mpf(1)-X_e) - n_H*alpha_Tb*X_e**2)
 
+    # print(f'dXe_de = {dXedx}')
+    # if np.isnan(dXedx):
+    #   print(f'Phi_tb = {phi_Tb}')
+    #   print(f'sigma_T = {sigma_T}')
+    #   print(f'Sigma_T = {Sigma_T}')
+    #   print(f'Alpha_tb = {alpha_Tb}')
+    #   print(f'Beta_tb = {beta_Tb}')
+    #   print(f'Beta2_tb = {beta2_Tb}')
+    #   print(f'n_H = {n_H}')
+    #   print(f'n1s = {n1s}')
+    #   print(f'Lambda_a = {lambda_a}')
+    #   print(f'Cr_Tb = {Cr_Tb}')
+    #   print('')
+
+
+    # print(dXedx)
 
     return dXedx
