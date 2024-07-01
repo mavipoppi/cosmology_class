@@ -198,7 +198,7 @@ class BackgroundCosmology:
     omega_totalmatter = [self.omega_totalmatter(xarr[i]) for i in range(npts)]
 
     # Plotting cosmic time
-    plt.figure(figsize=(5,5), dpi=300)
+    plt.figure(figsize=(7,5), dpi=300)
 
     cosmic_time = [self.time_of_x(xarr[i])/3.15e7/1e9 for i in range(npts)]
 
@@ -238,26 +238,26 @@ class BackgroundCosmology:
 
     # Plotting evolution of density parameters
 
-    #plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
-    #plt.plot(xarr, omega_darkenergy, color='#A756B4', label=r'$\Omega_{EnergiaEscura}$')
-    #plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
-    #plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
-    #plt.ylabel(r'$\Omega$')
-    #plt.xlabel(r'$x=log(a)$')
-    #plt.axvline(x=0, color='black', ls=':')
-    #plt.axhline(y=0, color='black', ls=':')
-   # plt.xlim(-18,2)
-    #plt.legend()
+    plt.plot(xarr, omega_totalrad, color='#DB5354', label=r'$\Omega_{RadiaçãoTotal}$')
+    plt.plot(xarr, omega_darkenergy, color='#A756B4', label=r'$\Omega_{EnergiaEscura}$')
+    plt.plot(xarr, omega_k, color='#F1A736', label=r'$\Omega_{Curvatura}$')
+    plt.plot(xarr, omega_totalmatter, color='#00B692', label=r'$\Omega_{MatériaTotal}$')
+    plt.ylabel(r'$\Omega$')
+    plt.xlabel(r'$x=log(a)$')
+    plt.axvline(x=0, color='black', ls=':')
+    plt.axhline(y=0, color='black', ls=':')
+    plt.xlim(-18,2)
+    plt.legend()
 
     # Plotting evolution of conformal time
 
-    plt.plot(xarr, eta, color='#A756B4')
-    plt.ylabel(r'$\eta(x)\,(s)$')
-    plt.xlabel(r'$x = log(a)$')
-    plt.axvline(x=0, color= 'black', ls=':')
-    plt.axhline(y=1.48e18, color= 'black', ls=':')
-    plt.xlim(-18,2)
-    plt.yscale('log')
+    #plt.plot(xarr, eta, color='#A756B4')
+    #plt.ylabel(r'$\eta(x)\,(s)$')
+    #plt.xlabel(r'$x = log(a)$')
+    #plt.axvline(x=0, color= 'black', ls=':')
+    #plt.axhline(y=1.48e18, color= 'black', ls=':')
+    #plt.xlim(-18,2)
+    #plt.yscale('log')
 
     # Plotting evolution of Hubble factors 
 
